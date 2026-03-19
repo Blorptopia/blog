@@ -1,0 +1,14 @@
+body {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+bb-nav {
+	width: 100%;
+}
+main {
+	--min-width: min(25rem, 100vw);
+	width: clamp(var(--min-width), 50%, 100vw);
+	padding: 1rem;
+	box-sizing: border-box;
+}

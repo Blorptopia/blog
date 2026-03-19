@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/src/assets/icon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Song voting | Blorptopia's blog</title>
+    <link rel="stylesheet" href="/src/global.css" />
+    <link rel="stylesheet" href="/src/post.css" />
+    <link rel="stylesheet" href="./index.css" />
+    <script type="module" src="/src/elements/nav.ts"></script>
+  </head>
+  <body>
+	<bb-nav></bb-nav>
+	<main>
+		<h1>Song voting system</h1>
+		<h2>Introduction</h2>
+		<p>Every year, the school has a "Decemberfest" where the students are allowed to choose the songs that gets played before it starts.</p>
+		<p>The process worked like this:</p>
+		<ol>
+			
+			<li>Every class gets students to say the songs they want played out loud</li>
+			<li>The teacher adds the song to the whiteboard if appropriate</li>
+			<li>The teacher gathers votes for every song, and the 3 most popular songs gets sent to their student council representitive.</li>
+			<li>The student council representivie brings the 3 most popular songs to the student council meeting</li>
+			<li>The student council decides which songs are appropriate, and removes the ones that aren't</li>
+			<li>The student council votes on the songs they want added, and the top 10 songs get submitted to the people playing the music</li>
+		</ol>
+		<p>Now this system <i>works</i> however it has tons of issues:</p>
+		<ol>
+			<li>Which songs are appropriate is very subjective. Some songs have gotten removed because the teacher doesn't like them, which I do not find fair.</li>
+			<li>The student council representivies forget to send in their class's songs.</li>
+			<li>The system favours smaller classes and classes with less song ideas.</li>
+			<li>Some people are shy about their music taste. Forcing them to say it out loud if they want any may lead to fewer amount of songs</li>
+			<li>No one is happy because they feel like their class was underrepresented. This leads to people coming up to the sound desk and complaining, which isn't fun.</li>
+		</ol>
+		<h2>Requirements</h2>
+		<ol>
+			<li>The voting needs to be fair</li>
+			<li>No human should be able to "veto" out songs</li>
+			<li>It needs to be anonymous as I do not want to deal with GDPR issues.</li>
+			<li>Cheating should be hard.</li>
+		</ol>
+		<h2>Submitting songs</h2>
+		<p>I wanted a way for people to submit songs thats better than a simple text input. So I used spotify's api for this.</p>
+		<img src="images/search.jpg">
+		<p>I proxied spotify's search endpoint through the api, and made a song search that resembles google. Note that you had to click one of the results, you could not send in arbitrary text. This confused a few people.</p>
+		<h2>Moderation</h2>
+		<p>As this is a school, I wanted to avoid the teachers/the student council moderating the songs that was added as they are very biased. I have used IBM's MAX before and it works well for detecting inappropriate lyrics. The only downside being that it needs text in English.</p>
+		<p>So when a user submits a song we:</p>
+		<ol>
+			<li>Find the lyrics from happi's lyrics api as spotify does not provide lyrics via their api</li>
+			<li>Use google trans to translate the lyrics to English</li>
+			<li>Use IBM's MAX to detect whether the lyrics is appropriate</li>
+			<li>Return a error if it goes over certain thresholds</li>
+		</ol>
+		<p>This worked well, and kept most songs out.</p>
+		<h2>Voting</h2>
+		<img src="images/vote.jpg">
+		<p>
+			As I was inspired by <a href="https://www.youtube.com/watch?v=ALy6e7GbDRQ">Tom Scott's Best Thing video</a>, I wanted the voting system to work in the same way: Two songs pop up next to eachother, you click on the song you liked the most.
+		</p>
+
+		<p>This allows for a large volume of votes in a short time, and making cheating via using incognito or similar harder.</p>
+		<h2>The execution</h2>
+		<p>
+			The plan was to make people submit songs first, then once everyone had submitted a song people would be given access to vote. This would make sure every song had the same chance of exposure to voters.
+		</p>
+		<p>
+			Unfortunatley this did not happen as it would take too much time away from the students education.
+			Execution of the voting otherwise went pretty well, however the load was way higher than expected.
+		</p>
+		<video src="videos/api-logs.mp4"></video>
+		<p>I also added statistics to the news screen in the school area.</p>
+		<img src="images/infoscreen-stats.jpg">
+		<img src="images/infoscreen-ranking.jpg">
+		<h2>Issues under execution</h2>
+		<h3>Not self hosting IBM MAX</h3>
+		<p>As I was a bit too lazy, I decided not to self host IBM MAX, and instead use the demo site they provide as just a normal API.</p>
+		<p>However mid execution while people where submitting songs the demo site went down and caused all the song submissions to fail while I set up a self hosted version.</p>
+		<h3>The server going down</h3>
+		<p>While fixing things related to IBM MAX and other minor things the API went down.</p>
+
+		<p>However thankfully due to me being too lazy to implement error handling, any errors where ignored and just console logged. This was great in this instance as it let me restart the server without having to worry about the client having issues and people leaving early to do something else.</p>
+		<h2>Postmortem</h2>
+		<h3>Cheating?</h3>
+		<p>As every vote was saved as a unique object in the database with a timestamp of when it was registered, I decided to do a bit of graphs.</p>
+		<img src="images/votes-per-song.png">
+		<p>This was weird to me so I did a bit more graphing.</p>
+		<img src="images/vote-rate-per-song.png" alt="Graph showing vote rate spike on 2 songs">
+		<p>So seems like someone found out how to use the API to artifically get tons of votes on one song.</p>
+		<h3>Unbalanced system</h3>
+		<img src="images/votes-per-song.png" alt="Graph showing votes gradually going down the later the song was submitted">
+		<p>
+			When I was making the system I assumed it would be in two waves - first wave being adding songs, and once thats done everyone would vote on it. Sadly that did not happen, and that caused songs that was submitted first to have a way higher chance of being shown to potential voters. Some songs that was submitted later was so universally loved that it did not matter though.
+		</p>
+		<h3>Getting the songs played</h3>
+		<p>Sadly the student council still wanted to look over the songs, and I was not there the day they did it, so they unfortunatley removed songs as they saw fit. This included removing christmas songs as they where sick of them, and ignoring the votes.</p>
+		<p>Thankfully though - nobody enjoyed the song selection. If only they would have used the system this wouldnt have been a issue.</p>
+		<h3>Final stats</h3>
+		<img src="images/final-stats.png">
+		<p>We managed to get over 400 songs and over 18,000 votes sent in, and I would guess about 2,000 was lost due to the server being off.</p>
+	</main>
+  </body>
+</html>
