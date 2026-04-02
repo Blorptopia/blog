@@ -50,7 +50,7 @@ export class SyntaxHighlightingElement extends LitElement {
 		if (highlightElement === undefined) {
 			return;
 		}
-		highlightElement.textContent = this.contents?.replaceAll("\\n", "\n") ?? "";
+		highlightElement.textContent = this.contents ?? "";
 		(highlightElement as any).update();
 	}
 
