@@ -8,11 +8,240 @@
     <link rel="stylesheet" href="/src/global.css" />
     <link rel="stylesheet" href="/src/post.css" />
     <script type="module" src="/src/elements/nav.ts"></script>
+    <script type="module" src="/src/elements/syntax-highlighting.ts"></script>
+    <script type="module" src="/src/elements/wip-notice.ts"></script>
   </head>
   <body>
 	<bb-nav></bb-nav>
 	<main>
-		<h1>Making a multi threaded CSV parser</h1>
+		<h1>Behind tross</h1>
+		<bb-wip-notice></bb-wip-notice>
+		<section id="csv-refresher">
+			<h2>A quick refresher on CSVs</h2>
+			<p>A CSV file is a simple tabular data format on the surface, where columns are delimited by commas, and the first row is usually the names of the columns.</p>
+			<bb-syntax-highlighting language="csv" contents="Name of column 1,Name of column 2&#10;Value for row 1 column 1,Value for row 1 column 2"></bb-syntax-highlighting>
+			<p>
+				As with everything there's usually a few different alternative ways to write CSVs,
+				for example by excluding the header row and instead requiring the user of the data to pass in the names of the columns themselves.
+			</p>
+			<bb-syntax-highlighting language="csv" contents="Skinner,Steamed Hams&#10;Chalmers,Hamburgers"></bb-syntax-highlighting>
+			<p>
+				However, the devil is in the details. In this case, the details are usually the escaping of control characters like newlines and commas.
+				Commas can be escaped by using double quotes:
+			</p>
+			<bb-syntax-highlighting language="csv" contents="Normal column,&quot;This is a &quot;&quot; inside a column&quot;"></bb-syntax-highlighting>
+			<p>The same is also true for newlines:</p>
+			<bb-syntax-highlighting language="csv" contents="Column 1 name,Column 2 name&#10;&quot;Multi line&#10;column&quot;"></bb-syntax-highlighting>
+			<p>
+				And of course since quotes are now escape characters, you need to handle escaping them as well.
+				This is done by using a double quote inside a quoted column.
+			</p>
+			<bb-syntax-highlighting language="csv" contents="Normal column,&quot;This is a &quot;&quot; inside a column&quot;"></bb-syntax-highlighting>
+			<p>
+				Note that the column <em>needs to be escaped</em> despite not including any other control characters. Partial escaping of columns is not valid
+			</p>
+			<p>
+				Some programs also emit a line before the header line to describe which column separator should be used:
+			</p>
+			<bb-syntax-highlighting language="csv" contents="sep=;&#10;Column 1 name;Column 2 name&#10;Value;Another value"></bb-syntax-highlighting>
+			<p>This is non-standard and rarely supported outside Microsoft products however.</p>
+		</section>
+		<section>
+			<h2>What does tross do?</h2>
+			<p>
+				At its core tross is a library to serialize and de-serialize CSV files.
+				Simply put, tross has two jobs:
+			</p>
+			<ol>
+				<li>Converting the raw CSV contents into a map of strings</li>
+				<li>Converting objects into a CSV</li>
+			</ol>
+			<p>
+				Tross does not handle <em>the reading and writing of the file</em> however it does handle streaming parsing and writing.
+			</p>
+			<bb-syntax-highlighting language="typescript" contents="const writerBuilder = new SingleThreadedWriterBuilder();&#10;// ...&#10;const writer = writerBuilder.build();&#10;&#10;for await (const chunk of writer) {&#10;&#9;process.stdout.write(chunk);&#10;}"></bb-syntax-highlighting>
+			<p>
+				Tross has both a multi threaded and a single threaded variant of the serializer and de-serializer. This split was made due to the multi threaded being faster overall, but requiring quite a high up front cost to initialize all the web workers needed to parallelize the work. This means that it is preferred to use a single threaded parser for small files, and a multi threaded one for larger ones if you want the most performance.
+			</p>
+		</section>
+		<section id="serializing">
+			<h2>The serializer</h2>
+			<section id="single-threaded-serializing">
+				<h3>Single threaded</h3>
+				<p>The single threaded serializer just requires escaping each column and joining them by the column separator. No fancy magic is done here.</p>
+			</section>
+			<section id="multi-threaded-serializing">
+				<h3>Multi threaded</h3>
+				<p>
+				The multi threaded variant uses a slight variant of a worker pool to distribute tasks to a pool of workers. Since this is targeting JS, we use <a href="https://www.npmjs.com/package/web-worker">the web-worker wrapper around web workers and node's worker_threads</a>. The slight variant of this pool being that it is pull-based instead of push based.
+					In practice this means that the main thread defines a poll function that is called by the worker pool whenever a worker is available to handle work. This allows us to easily control the order tasks are executed in at the cost of the workers going idle between tasks while waiting for the main thread to send it a task
+				</p>
+				<bb-syntax-highlighting language="typescript" contents="const workerPool = new WorkerPool(...);&#10;workerPool.poll = () => {&#10;&#9;return remainingTasks.pop() ?? null;&#10;}&#10;workerPool.startPolling();"></bb-syntax-highlighting>
+				<p>
+				This is essentially an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator"><code>AsyncIterator</code></a>, however with a few important changes:
+				</p>
+				<ol>
+					<li><code>AsyncIterator</code> provides a value, then waits for the consumer to consume it. This isn't a big issue in the writer, however it becomes a problem later with the parser.</li>
+					<li><code>AsyncIterator</code> doesn't fit well with tross requesting values one at a time from various different functions</li>
+				</ol>
+				<p>
+					While yes you should <em>generally</em> follow standards, the benefits of not following it here outweigh the benefits of following it.
+				</p>
+				<!--
+					TODO: Visualization comparing poll vs AsyncIterator
+				-->
+				<p>
+					The main thread is not only responsible for dispatching the tasks - it is also responsible for yielding the results back to the user and the serialization of the initial header row.
+				</p>
+			</section>
+			<section id="serializer-optimizations">
+				<h3>Potential optimizations</h3>
+				<h4>Sharing memory across threads</h4>
+				<p>
+					When sending messages to a web worker using <a href="https://developer.mozilla.org/en-US/docs/Web/API/Worker/postMessage"><code>postMessage</code></a>, the data you send is <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Execution_model#agent_clusters_and_memory_sharing">usually cloned</a>, however this can be changed by sending <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects">transferable objects</a> and marking them as being transferred in the call to <code>postMessage</code>. The issue with this optimization however is that it does not support sending strings, only <code>ByteArray</code>s and similar types. I would assume that encoding and decoding the text you send to workers would have a higher overhead than cloning them, but I have not tested this.
+				</p>
+				<h4>Opt out of consistent ordering</h4>
+				<p>
+					We could have added an option to disable the guarantee that the order of serialized rows matches the order of rows given as input, as this would allow us to give you the result of tasks in any order instead of waiting for the tasks to complete in order before yielding them to the user.
+					This may give you the results <em>slightly</em> earlier as we wouldn't have to wait for other tasks to complete, however this wouldn't be a big speedup due to the worker pool prioritizing putting tasks in order.
+				</p>
+			</section>
+			<section id="what-is-serializing-missing">
+				<h3>What is missing</h3>
+				<p>
+					The writer does not emit the non-standard <a href="https://superuser.com/a/1376067">separator header</a>. There isn't any interesting technical challenge behind this choice, it's simply just not implemented as none of the data that I've needed to process has used this.
+				</p>
+			</section>
+			<section id="deserialization">
+				<h2>The deserializer</h2>
+				<section id="single-threaded-deserialization">
+					<h3>Single threaded</h3>
+					<p>
+						The single threaded variant works by going character by character and switching between different modes, switching modes when it reaches a control sequence
+					</p>
+					<!--
+						TODO: Visualization showing mode switching
+					-->
+					<p>
+						and in the case of control sequences it will peek forward and process the entire control sequence in one iteration.
+					</p>
+					<!--
+						TODO: Visualization showing the parser going cursor by cursor here and skipping over \n or \\" here
+					-->
+				</section>
+				<section id="multi-threaded-deserialization">
+					<h3>Multi threaded</h3>
+					<p>
+						Now, multi threading is where the most interesting parts come in.
+
+						The first thing that needs doing on the main thread is attempting to split the input buffer into roughly evenly sized chunks starting and ending at the exact start and end of a row. We do this by just seeking ahead a bit, find the next newline and use that as a chunk boundary. This isn't <em>perfect</em>, however I will come back to how we handle this later.
+					</p>
+					<!--
+						TODO: Visualization showing how chunk splitting works
+					-->
+					<p>
+						Once we have created the chunks, we create a task for every one of the chunks. This task includes a persistent identifier, as well as the range (not the actual content) of the chunk.
+					</p>
+					<p>
+						We then use the same worker pool mentioned while describing the <a href="#multi-threaded-serializing">multi threaded serializer</a> to distribute tasks, prioritizing tasks from the start both to avoid
+					</p>
+					<p>
+						The parsing code running on the worker is quite similar to the one running using single threaded mode with three exceptions:
+					</p>
+					<ol>
+						<li>Rows are not yielded one at a time, rather the entire task is finished before sending the result to the main thread.</li>
+						<li>It operates on the entire input buffer but keeps to the range it was told to.</li>
+						<li>The parser will <em>attempt</em> to stop at the end of the range it was given, however if that isn't at the end of a row it will continue going until the end of the row.</li>
+					</ol>
+					<p>
+						Once the result arrives at the main thread, the main thread links the result to the task. 
+If the task exceeded it's designated range, it will replace the task that comes after with a new task that starts after the actual range the task that completed used.
+					</p>
+					<!--
+						TODO: Visualization showing re-sizing of tasks
+					-->
+					<p>
+						After that it goes in order from the first task to the last task, yielding rows to the user until it encounters a task which isn't complete yet.
+					</p>
+					<!--
+						TODO: Visualization showing rows getting yielded from tasks
+					-->
+				</section>
+				<section id="deserialization-what-is-missing">
+					<h3>What is missing?</h3>
+					<p>
+						The writer does not emit the non-standard <a href="https://superuser.com/a/1376067">)separator header</a>. There isn't any interesting technical challenge behind adding this, it's simply just not implemented. The current behavior is that it is treated as any other row, which usually leads to errors due to a mismatch between column counts or columns not being found due to <code>sep=,</code> being the only column name.
+					</p>
+				</section>
+				<section id="deserialization-potential-optimizations">
+					<h3>Potential optimizations</h3>
+					<h4>Lazily create tasks</h4>
+					<p>
+						Currently tasks are created when ingesting a chunk of the input buffer, however we could perhaps lazily create chunks when the poll function is created to avoid all that initial up front work, and in some cases allow of to avoid the mini chunks created at the end of an input chunk.
+					</p>
+					<h4>Preserve tasks that are thrown away</h4>
+					<p>
+						Sometimes the results of tasks that have completed is thrown away due to a previous task exceeding it's bounds and going into another task, causing the task and its result to be thrown away.
+					</p>
+					<p>
+						Lets imagine we have a series of events for three tasks:
+					</p>
+					<ol>
+						<li>The third task completes first, fitting the bounds requested.</li>
+						<li>The second task completes second, exceeding its bounds into task three causing the result of task three to get discarded and a new task three getting created to fit the new bounds.</li>
+						<li>The first tasks completes exceeding its bounds into task two, causing the result of task two to get discarded and a new task two to getting created to fit the new bounds.</li>
+						<li>Task two now completes again, this time without exceeding its bounds.</li>
+					</ol>
+					<!--
+						TODO: Visualization showing the series of events
+					-->
+					<p>
+						We now currently compute the result of parsing from the end of task two to the end of the buffer twice considering the result is fully thrown away when a task is rescheduled. If we stored the results of tasks that we threw away somewhere, we might be able to re-use them.
+					</p>
+					<h4>Streaming the input buffer on request</h4>
+					<p>
+						Currently the <em>entire</em> input buffer is sent to the worker to allow it to exceed it's bounds and continue going until it reaches the end of a row. This requires cloning a large string, which isn't ideal both for memory usage and for performance.
+					</p>
+					<p>
+						Instead of sending the entire input buffer, we could just send the "optimal" buffer initially but allow the worker to request additional chunks as needed. This might be slower however, I haven't benchmarked it yet.
+					</p>
+				</section>
+			</section>
+		</section>
+		<section id="acknowledgements">
+			<h2>Acknowledgements</h2>
+			<table>
+				<tr>
+					<th>Who</th>
+					<th>What</th>
+				</tr>
+				<tr>
+					<td><a href="https://github.com/Platinumaniac">Platinumaniac</a></td>
+					<td>
+						<ol>
+							<li>Came up with the name tross (meaning to do something out of spite)</li>
+							<li>Made the initial single threaded prototype that I enjoyed breaking with edge cases</li>
+							<li>Proof reading this post</li>
+						</ol>
+				</tr>
+				<tr>
+					<td><a href="https://github.com/Simen732">Simen732</a></td>
+					<td>
+						<ol>
+							<li>Proof reading this document</li>
+						</ol>
+					</td>
+				</tr>
+				<tr>
+					<td><a href="https://github.com/alejoheu">Alejoheu</a></td>
+					<td>
+						<ol>
+							<li>Proof reading this document</li>
+						</ol>
+					</td>
+				</tr>
+			</table>
+		</section>
 	</main>
   </body>
 </html>

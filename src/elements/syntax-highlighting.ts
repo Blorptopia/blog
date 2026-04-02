@@ -1,9 +1,11 @@
-import "syntax-highlight-element";
-import Theme from "syntax-highlight-element/themes/prettylights.css?raw";
 import { customElement, property } from "lit/decorators.js";
 import { css, html, LitElement, unsafeCSS, type CSSResultGroup, type HTMLTemplateResult, type PropertyValues } from "lit";
-import { ifDefined } from "lit/directives/if-defined.js";
-import { createRef, ref, type Ref } from "lit/directives/ref.js";
+import { createRef, type Ref } from "lit/directives/ref.js";
+import Prism from "prismjs";
+import "prismjs/components/prism-typescript.js";
+import "prismjs/components/prism-csv.js";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import Theme from "prismjs/themes/prism-tomorrow.css?raw";
 
 @customElement("bb-syntax-highlighting")
 export class SyntaxHighlightingElement extends LitElement {
@@ -39,8 +41,11 @@ export class SyntaxHighlightingElement extends LitElement {
 	}
 
 	protected render(): HTMLTemplateResult {
+		// @ts-ignore
+		const grammar = Prism.languages[this.language];
+		const highlighted = Prism.highlight(this.contents ?? "", grammar, this.language ?? "text");
 		return html`
-			<syntax-highlight ${ref(this.highlightRef)} language=${ifDefined(this.language)}></syntax-highlight>
+			<code class=${`language-${this.language}`}>${unsafeHTML(highlighted)}</code>
 		`;
 	}
 	public updated(changedProperties: PropertyValues): void {
