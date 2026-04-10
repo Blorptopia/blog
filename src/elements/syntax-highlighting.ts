@@ -15,8 +15,7 @@ export class SyntaxHighlightingElement extends LitElement {
 			:host {
 				display: block;
 				padding: 1rem;
-				background: light-dark(#f6f8fa, #151b23);
-				color-scheme: light dark;
+				background: #151b23;
 				max-width: 100%;
 				overflow-y: scroll;
 			}

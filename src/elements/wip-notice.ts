@@ -8,6 +8,7 @@ export class WIPNoticeElement extends LitElement {
 			padding: 1rem;
 			background: #ffff00;
 			border: 0.2rem solid #b7b700;
+			color: black;
 		}
 	`;
 	protected render(): HTMLTemplateResult {
