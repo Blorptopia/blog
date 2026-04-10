@@ -142,7 +142,7 @@
 						Once we have created the chunks, we create a task for every one of the chunks. This task includes a persistent identifier, as well as the range (not the actual content) of the chunk.
 					</p>
 					<p>
-						We then use the same worker pool mentioned while describing the <a href="#multi-threaded-serializing">multi threaded serializer</a> to distribute tasks, prioritizing tasks from the start both to avoid
+						We then use the same worker pool mentioned while describing the <a href="#multi-threaded-serializing">multi threaded serializer</a> to distribute tasks, prioritizing tasks from the start both to avoid having to re-do tasks as much as possible, but also to give results back to the user as fast as possible.
 					</p>
 					<p>
 						The parsing code running on the worker is quite similar to the one running using single threaded mode with three exceptions:
