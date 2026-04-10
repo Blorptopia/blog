@@ -5,7 +5,7 @@ import { createRef, ref, type Ref } from "lit/directives/ref.js";
 
 
 @customElement("bb-tross-mode-switching-visualization")
-export class TrossModeSwitchingVisualization extends LitElement {
+export class TrossModeSwitchingVisualizationElement extends LitElement {
 	// Props
 	@property()
 	public text: string;
