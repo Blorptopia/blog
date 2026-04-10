@@ -131,7 +131,10 @@ export class TrossChunkSplittingVisualizationElement extends LitElement {
 		}
 	}
 	private getTextNode(): Node | undefined {
-		const textElement = this.textRef.value!;
+		const textElement = this.textRef.value;
+		if (textElement === undefined) {
+			return undefined;
+		}
 		return textElement.childNodes[1];
 	}
 	static styles?: CSSResultGroup = css`
