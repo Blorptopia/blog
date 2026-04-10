@@ -151,6 +151,7 @@ export class TrossModeSwitchingVisualizationElement extends LitElement {
 			background: #262626;
 			padding: 1rem;
 			color: white;
+			white-space: pre;
 		}
 		::highlight(parser-cursor) {
 			background: red;
