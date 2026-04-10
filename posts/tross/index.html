@@ -10,6 +10,7 @@
     <script type="module" src="/src/elements/nav.ts"></script>
     <script type="module" src="/src/elements/syntax-highlighting.ts"></script>
     <script type="module" src="/src/elements/wip-notice.ts"></script>
+    <script type="module" src="visualizations/mode-switching.ts"></script>
   </head>
   <body>
 	<bb-nav></bb-nav>
@@ -119,14 +120,12 @@
 					<p>
 						The single threaded variant works by going character by character and switching between different modes, switching modes when it reaches a control sequence
 					</p>
-					<!--
-						TODO: Visualization showing mode switching
-					-->
+					<bb-tross-mode-switching-visualization text="normal,&quot;quoted&quot;"></bb-tross-mode-switching-visualization>
 					<p>
 						and in the case of control sequences it will peek forward and process the entire control sequence in one iteration.
 					</p>
 					<!--
-						TODO: Visualization showing the parser going cursor by cursor here and skipping over \n or \\" here
+						TODO: Visualization showing the parser going character by cursor here and skipping over \n or \\" here
 					-->
 				</section>
 				<section id="multi-threaded-deserialization">
