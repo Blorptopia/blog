@@ -100,6 +100,7 @@ export class TrossChunkSplittingVisualizationElement extends LitElement {
 				if (signal.aborted) {
 					break;
 				}
+				cursorIndex++;
 
 				// Go character by character until we hit a newline
 				while (true) {
@@ -117,7 +118,6 @@ export class TrossChunkSplittingVisualizationElement extends LitElement {
 
 				chunkIndex++;
 				chunkStartIndex = cursorIndex;
-				await new Promise<void>(resolve => setTimeout(resolve, this.updateInterval));
 			}
 			await new Promise<void>(resolve => setTimeout(resolve, this.updateInterval));
 			for (const range of ranges) {
