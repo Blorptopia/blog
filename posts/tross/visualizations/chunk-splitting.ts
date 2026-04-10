@@ -22,7 +22,7 @@ export class TrossChunkSplittingVisualizationElement extends LitElement {
 		super();
 		this.text = "";
 		this.idealChunkSize = 10;
-		this.updateInterval = 200;
+		this.updateInterval = 500;
 
 		this.textRef = createRef();
 
