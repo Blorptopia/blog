@@ -16,7 +16,7 @@ export class TrossChunkSplittingVisualizationElement extends LitElement {
 	// Elements
 	private textRef: Ref<HTMLElement>;
 	// Attributes
-	private animateTask: Task<[string, number, Node]>;
+	private animateTask: Task<[string, number]>;
 
 	public constructor() {
 		super();
@@ -29,12 +29,10 @@ export class TrossChunkSplittingVisualizationElement extends LitElement {
 		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 		this.animateTask = new Task(this, {
 			args: () => {
-				const textElement = this.textRef.value!;
-				const textElementTextNode = textElement.childNodes[1]!;
-				return [this.text, this.idealChunkSize, textElementTextNode] as const
+				return [this.text, this.idealChunkSize] as const
 			},
-			task: async ([text, idealChunkSize, textNode], {signal}) => {
-				await this.loopAnimation(text, idealChunkSize, textNode, signal);	
+			task: async ([text, idealChunkSize], {signal}) => {
+				await this.loopAnimation(text, idealChunkSize, signal);	
 			},
 			onError: (error) => {
 				console.error("failed to animate", error);
@@ -57,7 +55,7 @@ export class TrossChunkSplittingVisualizationElement extends LitElement {
 		`;
 	}
 
-	private async loopAnimation(text: string, idealChunkSize: number, textNode: Node, signal: AbortSignal): Promise<void> {
+	private async loopAnimation(text: string, idealChunkSize: number, signal: AbortSignal): Promise<void> {
 		const highlightIds: string[] = ["chunk-selection-0", "chunk-selection-1"];
 		const highlights = highlightIds.map(id => {
 			let highlight = CSS.highlights.get(id);
@@ -81,14 +79,20 @@ export class TrossChunkSplittingVisualizationElement extends LitElement {
 				const range = new Range();
 				highlight.add(range);
 				ranges.push(range);
-				range.setStart(textNode, chunkStartIndex);
+				const textNode = this.getTextNode();
+				if (textNode !== undefined) {
+					range.setStart(textNode, chunkStartIndex);
+				}
 
 				// First skip over to the ideal size
 				cursorIndex += idealChunkSize;
 
 				const characterAtIndex = text[cursorIndex]!;
 				if (characterAtIndex === "\n" || characterAtIndex === undefined) {
-					range.setEnd(textNode, text.length);
+					const textNode = this.getTextNode();
+					if (textNode !== undefined) {
+						range.setEnd(textNode, text.length);
+					}
 					chunkIndex++;
 					break;
 				}
@@ -103,7 +107,10 @@ export class TrossChunkSplittingVisualizationElement extends LitElement {
 					if (characterAtIndex === "\n" || characterAtIndex === undefined) {
 						break;
 					}
-					range.setEnd(textNode, cursorIndex + 1);
+					const textNode = this.getTextNode();
+					if (textNode !== undefined) {
+						range.setEnd(textNode, cursorIndex + 1);
+					}
 					await new Promise<void>(resolve => setTimeout(resolve, this.updateInterval));
 					cursorIndex++;
 				}
@@ -122,6 +129,10 @@ export class TrossChunkSplittingVisualizationElement extends LitElement {
 				break;
 			}
 		}
+	}
+	private getTextNode(): Node | undefined {
+		const textElement = this.textRef.value!;
+		return textElement.childNodes[1];
 	}
 	static styles?: CSSResultGroup = css`
 		:host {
