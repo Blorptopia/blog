@@ -87,19 +87,29 @@ export class TrossModeSwitchingVisualization extends LitElement {
 				await new Promise(resolve => setTimeout(resolve, this.updateInterval));
 				continue;
 			}
-			if (characterAtIndex === "\"") {
+			const nextCharacter = text[characterIndex + 1];
+			const isEscapedQuote = characterAtIndex === "\"" && nextCharacter === "\"" && this.parserMode === "escaped";
+			if (!isEscapedQuote && characterAtIndex === "\"") {
 				if (this.parserMode === "normal") {
 					this.parserMode = "escaped";
 				} else {
 					this.parserMode = "normal";
 				}
 			}
+			
+			// Update the highlight to select the currely processing character
 			const textElement = this.textRef.value;
 			if (textElement !== undefined) {
 				const textElementTextNode = textElement.childNodes[1]!;
 				const characterRange = new Range();
 				characterRange.setStart(textElementTextNode, characterIndex);
 				characterRange.setEnd(textElementTextNode, characterIndex + 1);
+
+				if (isEscapedQuote) {
+					// Process the escape as one character
+					characterRange.setEnd(textElementTextNode, characterIndex + 2);
+					characterIndex++;
+				}
 				cursorRange = characterRange;
 				highlight.add(cursorRange);
 			}
