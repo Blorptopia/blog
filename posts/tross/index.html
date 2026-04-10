@@ -169,7 +169,7 @@ If the task exceeded it's designated range, it will replace the task that comes 
 				<section id="deserialization-what-is-missing">
 					<h3>What is missing?</h3>
 					<p>
-						The writer does not emit the non-standard <a href="https://superuser.com/a/1376067">)separator header</a>. There isn't any interesting technical challenge behind adding this, it's simply just not implemented. The current behavior is that it is treated as any other row, which usually leads to errors due to a mismatch between column counts or columns not being found due to <code>sep=,</code> being the only column name.
+						The writer does not emit the non-standard <a href="https://superuser.com/a/1376067">separator header</a>. There isn't any interesting technical challenge behind adding this, it's simply just not implemented. The current behavior is that it is treated as any other row, which usually leads to errors due to a mismatch between column counts or columns not being found due to <code>sep=,</code> being the only column name.
 					</p>
 				</section>
 				<section id="deserialization-potential-optimizations">
