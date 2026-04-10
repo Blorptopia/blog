@@ -1,4 +1,4 @@
-import { Task } from "@lit/task";
+import { Task, TaskStatus } from "@lit/task";
 import { css, html, LitElement, type CSSResultGroup, type HTMLTemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { createRef, ref, type Ref } from "lit/directives/ref.js";
@@ -19,21 +19,26 @@ export class TrossModeSwitchingVisualization extends LitElement {
 	// Elements
 	private textRef: Ref<HTMLElement>;
 
+	// Attributes
+	private animateTask: Task<[string]>;
+
 	public constructor() {
 		super();
 		this.text = "";
 		this.updateInterval = 100;
 		
 		this.textRef = createRef();
-
-		new Task(this, {
+		
+		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		this.animateTask = new Task(this, {
 			args: () => [this.text] as const,
 			task: async ([text], {signal}) => {
 				await this.loopAnimation(text, signal);	
 			},
 			onError: (error) => {
 				console.error("failed to animate", error);
-			}
+			},
+			autoRun: !reduceMotion
 		});
 	}
 	protected render(): HTMLTemplateResult {
@@ -45,6 +50,15 @@ export class TrossModeSwitchingVisualization extends LitElement {
 				<span>mode</span>
 			</div>
 			<code ${ref(this.textRef)}>${this.text}</code>
+			<button
+				id="play-visualization"
+				?hidden=${this.animateTask.status !== TaskStatus.INITIAL}
+				@click=${() => {
+					this.animateTask.run();
+				}}
+			>
+				Play visualization
+			</button>
 		`;
 	}
 	private async loopAnimation(text: string, signal: AbortSignal): Promise<void> {
@@ -83,13 +97,11 @@ export class TrossModeSwitchingVisualization extends LitElement {
 			const textElement = this.textRef.value;
 			if (textElement !== undefined) {
 				const textElementTextNode = textElement.childNodes[1]!;
-				console.log(textElementTextNode);
 				const characterRange = new Range();
 				characterRange.setStart(textElementTextNode, characterIndex);
 				characterRange.setEnd(textElementTextNode, characterIndex + 1);
 				cursorRange = characterRange;
 				highlight.add(cursorRange);
-				console.log(`highlighted ${characterIndex}`);
 			}
 			
 			characterIndex++;
