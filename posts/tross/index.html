@@ -135,9 +135,6 @@
 						The first thing that needs doing on the main thread is attempting to split the input buffer into roughly evenly sized chunks starting and ending at the exact start and end of a row. We do this by just seeking ahead a bit, find the next newline and use that as a chunk boundary. This isn't <em>perfect</em>, however I will come back to how we handle this later.
 					</p>
 					<bb-tross-chunk-splitting-visualization text="line 1&#10;line 2&#10;line 3&#10;line 4&#10;line 5&#10;"></bb-tross-chunk-splitting-visualization>
-					<!--
-						TODO: Visualization showing how chunk splitting works
-					-->
 					<p>
 						Once we have created the chunks, we create a task for every one of the chunks. This task includes a persistent identifier, as well as the range (not the actual content) of the chunk.
 					</p>
