@@ -12,6 +12,7 @@
     <script type="module" src="/src/elements/wip-notice.ts"></script>
     <script type="module" src="visualizations/mode-switching.ts"></script>
     <script type="module" src="visualizations/chunk-splitting.ts"></script>
+    <script type="module" src="visualizations/yielding.ts"></script>
   </head>
   <body>
 	<bb-nav></bb-nav>
@@ -159,9 +160,7 @@ If the task exceeded it's designated range, it will replace the task that comes 
 					<p>
 						After that it goes in order from the first task to the last task, yielding rows to the user until it encounters a task which isn't complete yet.
 					</p>
-					<!--
-						TODO: Visualization showing rows getting yielded from tasks
-					-->
+					<bb-tross-yielding-visualization></bb-tross-yielding-visualization>
 				</section>
 				<section id="deserialization-what-is-missing">
 					<h3>What is missing?</h3>
