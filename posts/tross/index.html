@@ -12,6 +12,7 @@
     <script type="module" src="/src/elements/wip-notice.ts"></script>
     <script type="module" src="visualizations/mode-switching.ts"></script>
     <script type="module" src="visualizations/chunk-splitting.ts"></script>
+    <script type="module" src="visualizations/yielding.ts"></script>
   </head>
   <body>
 	<bb-nav></bb-nav>
@@ -135,9 +136,6 @@
 						The first thing that needs doing on the main thread is attempting to split the input buffer into roughly evenly sized chunks starting and ending at the exact start and end of a row. We do this by just seeking ahead a bit, find the next newline and use that as a chunk boundary. This isn't <em>perfect</em>, however I will come back to how we handle this later.
 					</p>
 					<bb-tross-chunk-splitting-visualization text="line 1&#10;line 2&#10;line 3&#10;line 4&#10;line 5&#10;"></bb-tross-chunk-splitting-visualization>
-					<!--
-						TODO: Visualization showing how chunk splitting works
-					-->
 					<p>
 						Once we have created the chunks, we create a task for every one of the chunks. This task includes a persistent identifier, as well as the range (not the actual content) of the chunk.
 					</p>
@@ -162,9 +160,7 @@ If the task exceeded it's designated range, it will replace the task that comes 
 					<p>
 						After that it goes in order from the first task to the last task, yielding rows to the user until it encounters a task which isn't complete yet.
 					</p>
-					<!--
-						TODO: Visualization showing rows getting yielded from tasks
-					-->
+					<bb-tross-yielding-visualization></bb-tross-yielding-visualization>
 				</section>
 				<section id="deserialization-what-is-missing">
 					<h3>What is missing?</h3>
@@ -220,14 +216,14 @@ If the task exceeded it's designated range, it will replace the task that comes 
 						<ol>
 							<li>Came up with the name tross (meaning to do something out of spite)</li>
 							<li>Made the initial single threaded prototype that I enjoyed breaking with edge cases</li>
-							<li>Proof reading this post</li>
+							<li>Proofreading this post</li>
 						</ol>
 				</tr>
 				<tr>
 					<td><a href="https://github.com/Simen732">Simen732</a></td>
 					<td>
 						<ol>
-							<li>Proof reading this document</li>
+							<li>Proofreading this document</li>
 						</ol>
 					</td>
 				</tr>
@@ -235,7 +231,15 @@ If the task exceeded it's designated range, it will replace the task that comes 
 					<td><a href="https://alejoh.eu">alejoheu</a></td>
 					<td>
 						<ol>
-							<li>Proof reading this document</li>
+							<li>Proofreading this document</li>
+						</ol>
+					</td>
+				</tr>
+				<tr>
+					<td><a href="https://github.com/mikonaw">mikonaw</a></td>
+					<td>
+						<ol>
+							<li>Initial version of the multi threaded writer</li>
 						</ol>
 					</td>
 				</tr>
