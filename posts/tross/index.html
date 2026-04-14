@@ -64,19 +64,19 @@
 			</p>
 			<bb-syntax-highlighting language="typescript" contents="const writerBuilder = new SingleThreadedWriterBuilder();&#10;// ...&#10;const writer = writerBuilder.build();&#10;&#10;for await (const chunk of writer) {&#10;&#9;process.stdout.write(chunk);&#10;}"></bb-syntax-highlighting>
 			<p>
-				Tross has both a multi threaded and a single threaded variant of the serializer and de-serializer. This split was made due to the multi threaded being faster overall, but requiring quite a high up-front cost to initialize all the web workers needed to parallelize the work. This means that it is preferred to use a single threaded parser for small files, and a multi threaded one for larger ones if you want the most performance.
+				Tross has both a multi-threaded and a single-threaded variant of the serializer and de-serializer. This split was made due to the multi-threaded being faster overall, but requiring quite a high up-front cost to initialize all the web workers needed to parallelize the work. This means that it is preferred to use a single-threaded parser for small files, and a multi-threaded one for larger ones if you want the most performance.
 			</p>
 		</section>
 		<section id="serializing">
 			<h2>The serializer</h2>
 			<section id="single-threaded-serializing">
-				<h3>Single threaded</h3>
-				<p>The single threaded serializer just requires escaping each column and joining them by the column separator. No fancy magic is done here.</p>
+				<h3>Single-threaded</h3>
+				<p>The single-threaded serializer just requires escaping each column and joining them by the column separator. No fancy magic is done here.</p>
 			</section>
 			<section id="multi-threaded-serializing">
-				<h3>Multi threaded</h3>
+				<h3>Multi-threaded</h3>
 				<p>
-				The multi threaded variant uses a slight variant of a worker pool to distribute tasks to a pool of workers. Since this is targeting JS, we use <a href="https://www.npmjs.com/package/web-worker">the web-worker wrapper around web workers and node's worker_threads</a>. The slight variant of this pool being that it is pull-based instead of push based.
+				The multi-threaded variant uses a slight variant of a worker pool to distribute tasks to a pool of workers. Since this is targeting JS, we use <a href="https://www.npmjs.com/package/web-worker">the web-worker wrapper around web workers and node's worker_threads</a>. The slight variant of this pool being that it is pull-based instead of push based.
 					In practice this means that the main thread defines a poll function that is called by the worker pool whenever a worker is available to handle work. This allows us to easily control the order tasks are executed in at the cost of the workers going idle between tasks while waiting for the main thread to send it a task
 				</p>
 				<bb-syntax-highlighting language="typescript" contents="const workerPool = new WorkerPool(...);&#10;workerPool.poll = () => {&#10;&#9;return remainingTasks.pop() ?? null;&#10;}&#10;workerPool.startPolling();"></bb-syntax-highlighting>
@@ -118,9 +118,9 @@
 			<section id="deserialization">
 				<h2>The deserializer</h2>
 				<section id="single-threaded-deserialization">
-					<h3>Single threaded</h3>
+					<h3>Single-threaded</h3>
 					<p>
-						The single threaded variant works by going character by character and switching between different modes, switching modes when it reaches a control sequence
+						The single-threaded variant works by going character by character and switching between different modes, switching modes when it reaches a control sequence
 					</p>
 					<bb-tross-mode-switching-visualization text="normal,&quot;quoted&quot;"></bb-tross-mode-switching-visualization>
 					<p>
@@ -129,7 +129,7 @@
 					<bb-tross-mode-switching-visualization text="&quot;this is an &quot;&quot; escaped quote&quot;"></bb-tross-mode-switching-visualization>
 				</section>
 				<section id="multi-threaded-deserialization">
-					<h3>Multi threaded</h3>
+					<h3>Multi-threaded</h3>
 					<p>
 						Now, multi threading is where the most interesting parts come in.
 
@@ -140,10 +140,10 @@
 						Once we have created the chunks, we create a task for every one of the chunks. This task includes a persistent identifier, as well as the range (not the actual content) of the chunk.
 					</p>
 					<p>
-						We then use the same worker pool mentioned while describing the <a href="#multi-threaded-serializing">multi threaded serializer</a> to distribute tasks, prioritizing tasks from the start both to avoid having to re-do tasks as much as possible, but also to give results back to the user as fast as possible.
+						We then use the same worker pool mentioned while describing the <a href="#multi-threaded-serializing">multi-threaded serializer</a> to distribute tasks, prioritizing tasks from the start both to avoid having to re-do tasks as much as possible, but also to give results back to the user as fast as possible.
 					</p>
 					<p>
-						The parsing code running on the worker is quite similar to the one running using single threaded mode with three exceptions:
+						The parsing code running on the worker is quite similar to the one running using single-threaded mode with three exceptions:
 					</p>
 					<ol>
 						<li>Rows are not yielded one at a time, rather the entire task is finished before sending the result to the main thread.</li>
@@ -215,7 +215,7 @@ If the task exceeded it's designated range, it will replace the task that comes 
 					<td>
 						<ol>
 							<li>Came up with the name tross (meaning to do something out of spite)</li>
-							<li>Made the initial single threaded prototype that I enjoyed breaking with edge cases</li>
+							<li>Made the initial single-threaded prototype that I enjoyed breaking with edge cases</li>
 							<li>Proofreading this post</li>
 						</ol>
 				</tr>
@@ -239,7 +239,7 @@ If the task exceeded it's designated range, it will replace the task that comes 
 					<td><a href="https://github.com/mikonaw">mikonaw</a></td>
 					<td>
 						<ol>
-							<li>Initial version of the multi threaded writer</li>
+							<li>Initial version of the multi-threaded writer</li>
 						</ol>
 					</td>
 				</tr>
