@@ -21,18 +21,18 @@
 		<bb-wip-notice></bb-wip-notice>
 		<section id="csv-refresher">
 			<h2>A quick refresher on CSVs</h2>
-			<p>A CSV file is a simple tabular data format on the surface, where columns are delimited by commas, and the first row is usually the names of the columns.</p>
+			<p>A CSV file is a simple tabular data format, where columns are delimited by commas, and the first row is usually the names of the columns.</p>
 			<bb-syntax-highlighting language="csv" contents="Name of column 1,Name of column 2&#10;Value for row 1 column 1,Value for row 1 column 2"></bb-syntax-highlighting>
 			<p>
-				As with everything there's usually a few different alternative ways to write CSVs,
+				As with everything, there's a few alternate ways to write them,
 				for example by excluding the header row and instead requiring the user of the data to pass in the names of the columns themselves.
 			</p>
 			<bb-syntax-highlighting language="csv" contents="Skinner,Steamed Hams&#10;Chalmers,Hamburgers"></bb-syntax-highlighting>
 			<p>
-				However, the devil is in the details. In this case, the details are usually the escaping of control characters like newlines and commas.
+				However, the devil is in the details. In this case, the details is escaping the control characters like newlines and commas.
 				Commas can be escaped by using double quotes:
 			</p>
-			<bb-syntax-highlighting language="csv" contents="Normal column,&quot;This is a &quot;&quot; inside a column&quot;"></bb-syntax-highlighting>
+			<bb-syntax-highlighting language="csv" contents="Normal column,&quot;This is a , inside a column&quot;"></bb-syntax-highlighting>
 			<p>The same is also true for newlines:</p>
 			<bb-syntax-highlighting language="csv" contents="Column 1 name,Column 2 name&#10;&quot;Multi line&#10;column&quot;"></bb-syntax-highlighting>
 			<p>
