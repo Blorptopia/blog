@@ -64,7 +64,7 @@
 			</p>
 			<bb-syntax-highlighting language="typescript" contents="const writerBuilder = new SingleThreadedWriterBuilder();&#10;// ...&#10;const writer = writerBuilder.build();&#10;&#10;for await (const chunk of writer) {&#10;&#9;process.stdout.write(chunk);&#10;}"></bb-syntax-highlighting>
 			<p>
-				Tross has both a multi threaded and a single threaded variant of the serializer and de-serializer. This split was made due to the multi threaded being faster overall, but requiring quite a high up front cost to initialize all the web workers needed to parallelize the work. This means that it is preferred to use a single threaded parser for small files, and a multi threaded one for larger ones if you want the most performance.
+				Tross has both a multi threaded and a single threaded variant of the serializer and de-serializer. This split was made due to the multi threaded being faster overall, but requiring quite a high up-front cost to initialize all the web workers needed to parallelize the work. This means that it is preferred to use a single threaded parser for small files, and a multi threaded one for larger ones if you want the most performance.
 			</p>
 		</section>
 		<section id="serializing">
