@@ -108,12 +108,6 @@
 					This may give you the results <em>slightly</em> earlier as we wouldn't have to wait for other tasks to complete, however this wouldn't be a big speedup due to the worker pool prioritizing putting tasks in order.
 				</p>
 			</section>
-			<section id="what-is-serializing-missing">
-				<h3>What is missing</h3>
-				<p>
-					The writer does not emit the non-standard <a href="https://superuser.com/a/1376067">separator header</a>. There isn't any interesting technical challenge behind this choice, it's simply just not implemented as none of the data that I've needed to process has used this.
-				</p>
-			</section>
 			<section id="deserialization">
 				<h2>The deserializer</h2>
 				<section id="single-threaded-deserialization">
@@ -160,12 +154,6 @@ If the task exceeded it's designated range, it will replace the task that comes 
 						After that it goes in order from the first task to the last task, yielding rows to the user until it encounters a task which isn't complete yet.
 					</p>
 					<bb-tross-yielding-visualization></bb-tross-yielding-visualization>
-				</section>
-				<section id="deserialization-what-is-missing">
-					<h3>What is missing?</h3>
-					<p>
-						The writer does not emit the non-standard <a href="https://superuser.com/a/1376067">separator header</a>. There isn't any interesting technical challenge behind adding this, it's simply just not implemented. The current behavior is that it is treated as any other row, which usually leads to errors due to a mismatch between column counts or columns not being found due to <code>sep=,</code> being the only column name.
-					</p>
 				</section>
 				<section id="deserialization-potential-optimizations">
 					<h3>Potential optimizations</h3>
