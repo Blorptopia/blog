@@ -159,7 +159,7 @@ If the task exceeded it's designated range, it will replace the task that comes 
 					<h3>Potential optimizations</h3>
 					<h4>Lazily create tasks</h4>
 					<p>
-						Currently tasks are created when ingesting a chunk of the input buffer, however we could perhaps lazily create chunks when the poll function is created to avoid all that initial up front work, and in some cases allow of to avoid the mini chunks created at the end of an input chunk.
+						Currently tasks are created when ingesting a chunk of the input buffer, however we could perhaps lazily create chunks when the poll function is called to avoid all that initial up front work, and in some cases allow of to avoid the mini chunks created at the end of an input chunk.
 					</p>
 					<h4>Preserve tasks that are thrown away</h4>
 					<p>
