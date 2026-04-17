@@ -13,6 +13,7 @@
     <script type="module" src="visualizations/mode-switching.ts"></script>
     <script type="module" src="visualizations/chunk-splitting.ts"></script>
     <script type="module" src="visualizations/yielding.ts"></script>
+    <script type="module" src="visualizations/poll-iterator-comparison.ts"></script>
   </head>
   <body>
 	<bb-nav></bb-nav>
@@ -80,6 +81,7 @@
 					In practice this means that the main thread defines a poll function that is called by the worker pool whenever a worker is available to handle work. This allows us to easily control the order tasks are executed in at the cost of the workers going idle between tasks while waiting for the main thread to send it a task
 				</p>
 				<bb-syntax-highlighting language="typescript" contents="const workerPool = new WorkerPool(...);&#10;workerPool.poll = () => {&#10;&#9;return remainingTasks.pop() ?? null;&#10;}&#10;workerPool.startPolling();"></bb-syntax-highlighting>
+				<bb-tross-poll-iterator-comparison-visualization></bb-tross-poll-iterator-comparison-visualization>
 				<p>
 				This is essentially an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator"><code>AsyncIterator</code></a>, however with a few important changes:
 				</p>
@@ -90,9 +92,6 @@
 				<p>
 					While yes you should <em>generally</em> follow standards, the benefits of not following it here outweigh the benefits of following it.
 				</p>
-				<!--
-					TODO: Visualization comparing poll vs AsyncIterator
-				-->
 				<p>
 					The main thread is not only responsible for dispatching the tasks - it is also responsible for yielding the results back to the user and the serialization of the initial header row.
 				</p>
