@@ -10,7 +10,7 @@ const ENTRYPOINTS = [
 	"posts/song-voting-system/index.html",
 	// "posts/overload/index.html",
 	"posts/tross/index.html",
-	"posts/ente-404/index.html",
+	"posts/404/index.html",
 ];
 
 
