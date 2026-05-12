@@ -5,23 +5,20 @@
 	<link href="https://blorptopia.dev/posts/" rel="self" />
 	<link href="https://blorptopia.dev/" />
 	<id>urn:uuid:181b00b8-8328-46c1-99df-c00fe3881800</id>
+	<author>
+		<name>Blorptopia</name>
+	</author>
 
 	<entry>
 		<id>urn:uuid:729e1f18-46ba-4d41-b05b-eb35c789a03c</id>
 		<title>Breaking Ente's 404 page</title>
 		<summary>Bypassing the chrome dino-like's anticheat checks</summary>
 		<link rel="alternate" type="text/html" href="https://blorptopia.dev/posts/404/"/>
-		<author>
-			<name>Blorptopia</name>
-		</author>
 	</entry>
 	<entry>
 		<id>urn:uuid:0c85872d-073b-48d2-ac06-719dc3f8378b</id>
 		<title>Song voting system</title>
 		<summary>How the systems behind a school wide song voting system worked</summary>
 		<link rel="alternate" type="text/html" href="https://blorptopia.dev/posts/song-voting-system/"/>
-		<author>
-			<name>Blorptopia</name>
-		</author>
 	</entry>
 </feed>
