@@ -14,11 +14,13 @@
 		<title>Breaking Ente's 404 page</title>
 		<summary>Bypassing the chrome dino-like's anticheat checks</summary>
 		<link rel="alternate" type="text/html" href="https://blorptopia.dev/posts/404/"/>
+		<published>2026-05-12</published>
 	</entry>
 	<entry>
 		<id>urn:uuid:0c85872d-073b-48d2-ac06-719dc3f8378b</id>
 		<title>Song voting system</title>
 		<summary>How the systems behind a school wide song voting system worked</summary>
 		<link rel="alternate" type="text/html" href="https://blorptopia.dev/posts/song-voting-system/"/>
+		<published>2023-05-08</published>
 	</entry>
 </feed>
