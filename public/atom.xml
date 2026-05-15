@@ -12,7 +12,7 @@
 	<entry>
 		<id>urn:uuid:688e55dc-672f-43de-8147-671a247877bf</id>
 		<title>Creating a CSV library from scratch</title>
-		<summary>The edgecases of parsing and multithreading it</summary>
+		<summary>The edgecases of parsing and multithreading serialization and deserialization of CSVs</summary>
 		<link rel="alternate" type="text/html" href="https://blorptopia.dev/posts/tross/"/>
 		<published>2026-05-15</published>
 	<entry>
