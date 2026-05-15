@@ -69,7 +69,7 @@
 			<section id="streaming-serializing">
 				<h3>Streaming</h3>
 				<p>
-					Instead of taking <i>all the input</i> in all at once initially, we can take in rows a bit a time and return the serialized result as we process it.
+					Instead of taking <em>all the input</em> in all at once initially, we can take in rows a bit a time and return the serialized result as we process it.
 
 					This will reduce the latency from submitting a part of the input to it being sent back to the end user, however it does not improve bandwidth
 
@@ -89,7 +89,7 @@
 				</p>
 				<bb-syntax-highlighting language="typescript" contents="// Poll based&#10;const workerPool = new WorkerPool({&#10;&#9;poll: () => {&#10;&#9;&#9;return remainingTasks.pop() ?? null;&#10;&#9;}&#10;&#9;...&#10;});&#10;workerPool.startPolling();&#10;&#10;// AsyncIterator based&#10;const workerPool = new WorkerPool({&#10;&#9;stream: async function*() {&#10;&#9;&#9;while (true) {&#10;&#9;&#9;&#9;const task = remainingTasks.pop();&#10;&#9;&#9;&#9;if (task === undefined) {&#10;&#9;&#9;&#9;&#9;break;&#10;&#9;&#9;&#9;}&#10;&#9;&#9;&#9;yield task;&#10;&#9;&#9;}&#10;&#9;}&#10;})"></bb-syntax-highlighting>
 				<p>
-					While yes you should <i>generally</i> follow standards, the reason I decided to deviate was that an <code>AsyncIterator</code> holds a value pending at all times, instead of poll where the value is only generated <i>when requested</i>. This is one of the things allowing us to change the prioritization of tasks right up until we sent it to the worker.
+					While yes you should <em>generally</em> follow standards, the reason I decided to deviate was that an <code>AsyncIterator</code> holds a value pending at all times, instead of poll where the value is only generated <em>when requested</em>. This is one of the things allowing us to change the prioritization of tasks right up until we sent it to the worker.
 				</p>
 				<bb-tross-poll-iterator-comparison-visualization></bb-tross-poll-iterator-comparison-visualization>
 				<p>
@@ -144,7 +144,7 @@
 				<p>
 					Here we also use the custom pull-based worker pool described when we made the <a href="#multi-threading-serializing">multi threading serializing</a> however it provides major speedups in reducing head of line blocking due to it allowing us to specify the order of tasks executed instead of queueing it like a FIFO queue and even changing the priority up to right before a task gets sent to a worker.
 
-					This is especially important when we have to resize a task as that would <i>normally</i> be submitted at the back of the queue even though the chunk is at the start of the text, making the entire output wait until that chunk is complete. However when we can prioritize we can put tasks that are closer to the start first, reducing head of line blocking as much as possible.
+					This is especially important when we have to resize a task as that would <em>normally</em> be submitted at the back of the queue even though the chunk is at the start of the text, making the entire output wait until that chunk is complete. However when we can prioritize we can put tasks that are closer to the start first, reducing head of line blocking as much as possible.
 				</p>
 				<bb-tross-yielding-visualization></bb-tross-yielding-visualization>
 			</section>
