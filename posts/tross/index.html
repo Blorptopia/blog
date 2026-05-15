@@ -139,6 +139,9 @@
 					This works perfectly in the case where the input doesn't contain any newlines, however in the case that it does this method might end up splitting a column in the middle of it. This is hard to avoid considering there can be a full CSV inside of one column of CSV without issue. We solve this by instead of splitting correctly the first time, we try our best to split correctly and then we correct for it by allowing the workers to go past a tasks bounds if it doesn't end on a newline, causing the task after it to be aborted and rescheduled with a new start point.
 				</p>
 				<p>
+					Note the tradeoff of this is that we can't just send the slice of buffer that the task is supposed to be parsing, but also everything after. Benchmarking if this is more efficient will be another project for another day.
+				</p>
+				<p>
 					Here we also use the custom pull-based worker pool described when we made the <a href="#multi-threading-serializing">multi threading serializing</a> however it provides major speedups in reducing head of line blocking due to it allowing us to specify the order of tasks executed instead of queueing it like a FIFO queue and even changing the priority up to right before a task gets sent to a worker.
 
 					This is especially important when we have to resize a task as that would <i>normally</i> be submitted at the back of the queue even though the chunk is at the start of the text, making the entire output wait until that chunk is complete. However when we can prioritize we can put tasks that are closer to the start first, reducing head of line blocking as much as possible.
