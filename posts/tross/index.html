@@ -136,7 +136,7 @@
 				</p>
 				<bb-tross-chunk-splitting-visualization text="line 1&#10;line 2&#10;line 3&#10;line 4&#10;line 5&#10;"></bb-tross-chunk-splitting-visualization>
 				<p>
-					This works perfectly in the case where the input doesn't contain any newlines, however in the case that it does this method might end up splitting a column in the middle of it. This is hard to avoid considering there can be a full CSV inside of one column of CSV without issue. We solve this by instead of splitting correctly the first time, we try our best to split correctly and then we correct for it by allowing the workers to go past a tasks bounds if it doesn't end on a newline, causing the task after it to be aborted and rescheduled with a new start point.
+					This works perfectly in the case where the input doesn't contain any newlines inside columns, however in the case that it does this method might end up splitting a column in the middle of it. This is hard to avoid considering there can be a full CSV inside of one column of CSV without issue. We solve this later when parsing by allowing tasks to exceed their target boundaries if they are in escaped mode when reaching the end of their target boundary up until the row actually ends. This requires that we cancel the task after it and re-schedule it with a new start size.
 				</p>
 				<p>
 					Note the tradeoff of this is that we can't just send the slice of buffer that the task is supposed to be parsing, but also everything after. Benchmarking if this is more efficient will be another project for another day.
