@@ -8,7 +8,13 @@
 	<author>
 		<name>Blorptopia</name>
 	</author>
-
+	
+	<entry>
+		<id>urn:uuid:688e55dc-672f-43de-8147-671a247877bf</id>
+		<title>Creating a CSV library from scratch</title>
+		<summary>The edgecases of parsing and multithreading it</summary>
+		<link rel="alternate" type="text/html" href="https://blorptopia.dev/posts/tross/"/>
+		<published>2026-05-15</published>
 	<entry>
 		<id>urn:uuid:729e1f18-46ba-4d41-b05b-eb35c789a03c</id>
 		<title>Breaking Ente's 404 page</title>
