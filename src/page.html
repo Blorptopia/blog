@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+  	{% block head %}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+	{# SEO #}
+	<meta name="theme-color" content="#e74c3c" />
+    <link rel="icon" type="image/svg+xml" href="/assets/crab.svg" />
+
+	{# Imports #}
+    <link rel="stylesheet" href="/global.css" />
+	<link href="/atom.xml" type="application/atom+xml" rel="alternate" title="Atom feed" />
+
+	{# Analytics #}
+	<script data-goatcounter="https://blorptopia.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+	{% endblock %}
+  </head>
+  <body>
+  	<nav>
+		<nav>
+			<a class="primary-link" href="/">Blorptopia</a>
+			<a href="/posts">Posts</a>
+		</nav>
+	</nav>
+	<div id="page-content">
+		{% block page_content %}
+			<h1>Page content</h1>
+			<p>Override this content using {{"{% block page_content %}{% endblock %}"}}
+		{% endblock %}
+	</div>
+  </body>
+</html>

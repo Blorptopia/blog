@@ -1,0 +1,25 @@
+{% extends "page.html" %}
+
+{% block head %}
+	{{ super() }}
+	<link rel="stylesheet" href="/posts/base.css">
+
+	<title>{{ post_metadata.title }} | Blorptopia's blog</title>
+	<meta property="og:type" content="article" />
+	<meta property="og:article:author" content="Blorptopia" />
+	<meta property="og:title" content="{{ post_metadata.title }}" />
+	<meta property="og:description" content="{{ post_metadata.summary }}">
+{% endblock %}
+
+{% block page_content %}
+	<article>
+		{% block post_content %}
+			<h1>Your blog post</h1>
+			<h2>Steps to configure page</h2>
+			<ol>
+				<li>Create a metadata.json file</li>
+				<li>Fill out the <code>post_content</code> block</li>
+			</ol>
+		{% endblock %}
+	</article>
+{% endblock %}

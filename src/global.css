@@ -15,3 +15,23 @@
 body {
 	margin: 0;
 }
+
+nav {
+	background: #232323;
+	padding: 1rem;
+
+	display: flex;
+	gap: 1rem;
+
+	a {
+		font-size: 1.2rem;
+		color: white;
+		text-decoration: none;
+	}
+	a:hover {
+		text-decoration: underline;
+	}
+	.primary-link {
+		font-weight: bold;
+	}
+}

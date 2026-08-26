@@ -1,0 +1,8 @@
+# Blorptopia site
+## Running this locally
+```sh
+# This needs to be called every time you make a change
+python3 build.py
+# This server can be left running
+(cd build/dist && python3 -m http.server 8000)
+```

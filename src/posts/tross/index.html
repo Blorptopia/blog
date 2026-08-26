@@ -1,0 +1,157 @@
+{% extends "posts/base.html" %}
+{% block head %}
+	{{ super() }}
+    <script type="module" src="visualizations/mode-switching.ts"></script>
+    <script type="module" src="visualizations/chunk-splitting.ts"></script>
+    <script type="module" src="visualizations/yielding.ts"></script>
+    <script type="module" src="visualizations/poll-iterator-comparison.ts"></script>
+    <script type="module" src="../../syntax-highlighting.ts"></script>
+
+{% endblock %}
+<!doctype html>
+{% block post_content %}
+	<h1>{{ post_metadata.title }}</h1>
+	<section id="serializing">
+		<h2>Serializing</h2>
+		<p>
+			Serializing is the part of taking an array of records and converting them into a string to write to the CSV file.
+			So you would need to take something like
+		</p>
+		<bb-syntax-highlighting language="typescript" contents="[&#10;&#9;{&#10;&#9;&#9;name: &quot;Skinner&quot;&#10;&#9;&#9;food: &quot;Steamed hams&quot;,&#10;&#9;},&#10;&#9;{&#10;&#9;&#9;name: &quot;Chalmers&quot;&#10;&#9;&#9;food: &quot;Hamburgers&quot;,&#10;&#9;},&#10;]&#10;"></bb-syntax-highlighting>
+		<p>
+			and turn it into
+		</p>
+		<bb-syntax-highlighting language="csv" contents="name,food&#10;Skinner,Steamed Hams&#10;Chalmers,Hamburgers"></bb-syntax-highlighting>
+		<p>
+			This contains two parts, the header line describing the names of the columns, and then each subsequent line is the values of rows.
+
+			If we ignore that the input can contain control characters for a minute, this is actually quite easy to implement
+		</p>
+		<bb-syntax-highlighting language="typescript" contents="function serializeCsv(rows, columns) {&#10;&#9;const lines = [&#10;&#9;&#9;columns,&#10;&#9;&#9;...rows.map(row => columns.map(key => row[key]))&#10;&#9;];&#10;&#9;return lines.map(serializeValues).join(&quot;\n&quot;);&#10;}&#10;function serializeValues(values) {&#10;&#9;return values.join(&quot;,&quot;);&#10;}&#10;&#10;const output = serializeCsv([&#10;&#9;{&#10;&#9;&#9;name: &quot;Skinner&quot;,&#10;&#9;&#9;food: &quot;Steamed hams&quot;&#10;&#9;},&#10;&#9;{&#10;&#9;&#9;name: &quot;Chalmers&quot;,&#10;&#9;&#9;food: &quot;Hamburgers&quot;&#10;&#9;}&#10;])"></bb-syntax-highlighting>
+		<p>
+			The reason we are taking in columns explicitly here instead of detecting it from the first row is that the columns can never change, and we also need to emit the header line even if no rows are present.
+		</p>
+		<h3>Oh no, the control characters!</h3>
+		<p>
+			The simple setup described above works really well as long as none of the control characters like newlines or commas are included in the input.
+			If we imagine this input
+		</p>
+		<bb-syntax-highlighting language="typescript" contents="[&#10;&#9;{&#10;&#9;&#9;index: &quot;0&quot;,&#10;&#9;&#9;lines: &quot;line 0\nline 1&quot;&#10;&#9;},&#10;&#9;{&#10;&#9;&#9;index: &quot;1&quot;,&#10;&#9;&#9;lines: &quot;line 2\nline 3&quot;&#10;&#9;}&#10;]&#10;&#10;"></bb-syntax-highlighting>
+		<p>
+			the current code would turn that into
+		</p>
+		<bb-syntax-highlighting language="csv" contents="index,lines&#10;0,line0&#10;line1&#10;1,line2&#10;line3&#10;"></bb-syntax-highlighting>
+		<p>
+			which would be really confusing to parse. CSV solves this by allowing you to escape values by quoting them
+		</p>
+		<bb-syntax-highlighting language="csv" contents="index,lines&#10;0,&quot;line 0&#10;line1&quot;&#10;1,&quot;line2&#10;line3&quot;"></bb-syntax-highlighting>
+		<p>which makes it slightly easier to understand. The same thing goes for commas</p>
+		<bb-syntax-highlighting language="csv" contents="column1,column2&#10;&quot;-> , <- this is a comma inside a column&quot;,actually the second column"></bb-syntax-highlighting>
+		<p>
+			However what about double quotes itself? Well that is solved by quoting the column and converting quotes inside the column to double quotes to differentiate themselves from quotes at the start and end of a column
+		</p>
+		<bb-syntax-highlighting language="csv" contents="text&#10;&quot; &quot;&quot; <- this is one double quote&quot;"></bb-syntax-highlighting>
+		<p>
+			In the end we end up with an <code>escapeValue</code> function that we pass all values through
+		</p>
+		<bb-syntax-highlighting language="typescript" contents="export function escapeValue(text) {&#10;&#9;if (&#10;&#9;&#9;text.includes(&quot;\n&quot;) ||&#10;&#9;&#9;text.includes(&quot;\&quot;&quot;) ||&#10;&#9;&#9;text.includes(&quot;,&quot;)&#10;&#9;) {&#10;&#9;&#9;let escapedText = text.replaceAll(&quot;\&quot;&quot;, &quot;\&quot;\&quot;&quot;);&#10;&#9;&#9;return `&quot;${escapedText}&quot;`;&#10;&#9;} else {&#10;&#9;&#9;return text;&#10;&#9;}&#10;}&#10;&#10;"></bb-syntax-highlighting>
+
+		<section id="streaming-serializing">
+			<h3>Streaming</h3>
+			<p>
+				Instead of taking <em>all the input</em> in all at once initially, we can take in rows a bit a time and return the serialized result as we process it.
+
+				This will reduce the latency from submitting a part of the input to it being sent back to the end user, however it does not improve bandwidth
+
+				To do this we take in an <code>AsyncIterator</code> of rows and return an <code>AsyncIterator</code> of text chunks. The user of the text chunk iterator then only has to concatenate the chunks together to get the final CSV.
+			</p>
+		</section>
+		<section id="multi-threading-serializing">
+			<h3>Multi threading</h3>
+			<p>
+				As we are sometimes serializing large amounts of rows, we want to optimize our serializer at least a little bit so we don't have to wait that long.
+
+				As we already converted our interface to use <code>AsyncIterator</code>s <a href="#streaming-serializing">when we added streaming</a> we can keep the interface the same so we can easily swap between the two for example when benchmarking.
+				As the serializer doesn't require state to serialize rows, this is quite a good candidate for multi threading.
+				Multi threading then just becomes a matter of chunking up a group of rows and sending it to a worker pool and joining them by newline when they come back.
+
+				We do this with a custom pull-based worker pool instead of a normal push-based worker pool as it allows the user to feed us whatever sized chunks and as long as our buffer is large enough when a worker is available, we send the optimal task size to the worker. The pull based worker pool is also built around a poll function, not a <code>AsyncIterator</code>.
+			</p>
+			<bb-syntax-highlighting language="typescript" contents="// Poll based&#10;const workerPool = new WorkerPool({&#10;&#9;poll: () => {&#10;&#9;&#9;return remainingTasks.pop() ?? null;&#10;&#9;}&#10;&#9;...&#10;});&#10;workerPool.startPolling();&#10;&#10;// AsyncIterator based&#10;const workerPool = new WorkerPool({&#10;&#9;stream: async function*() {&#10;&#9;&#9;while (true) {&#10;&#9;&#9;&#9;const task = remainingTasks.pop();&#10;&#9;&#9;&#9;if (task === undefined) {&#10;&#9;&#9;&#9;&#9;break;&#10;&#9;&#9;&#9;}&#10;&#9;&#9;&#9;yield task;&#10;&#9;&#9;}&#10;&#9;}&#10;})"></bb-syntax-highlighting>
+			<p>
+				While yes you should <em>generally</em> follow standards, the reason I decided to deviate was that an <code>AsyncIterator</code> holds a value pending at all times, instead of poll where the value is only generated <em>when requested</em>. This is one of the things allowing us to change the prioritization of tasks right up until we sent it to the worker.
+			</p>
+			<bb-tross-poll-iterator-comparison-visualization></bb-tross-poll-iterator-comparison-visualization>
+			<p>
+			Since this is targeting both browser and node, we use <a href="https://www.npmjs.com/package/web-worker">the web-worker wrapper around web workers and node's worker_threads</a>.
+			</p>
+		</section>
+	</section>
+	<section id="deserializing">
+		<h2>Deserializing</h2>
+		<p>
+			De-serialization is the part where you turn the CSV file into native objects (in this case an array of <code>Map</code>s).
+
+			The de-serialization process is split into two stages:
+		</p>
+		<ol>
+			<li>Parsing the header row</li>
+			<li>Parsing the data rows</li>
+		</ol>
+		<p>
+			In header row mode we allow any count of columns and just eat the row into an internal "columns" array. Once that is done we proceed into the data row stage, where we lookup the index of the column in the columns array to get the name.
+		</p>
+
+		<section id="deserializing-control-characters">
+			<h3>The control characters strike again</h3>
+			<p>
+				To parse CSVs with control characters we use an state machine with two states:
+			</p>
+			<ol>
+				<li>Normal</li>
+				<li>Escaped</li>
+			</ol>
+			<p>
+				Normal mode is the initial mode, while escaped mode is the mode you enter when you enter a quoted column.
+			</p>
+			<bb-tross-mode-switching-visualization text="normal,&quot;quoted&quot;"></bb-tross-mode-switching-visualization>
+			<p>
+				Escaped mode switches the behavior of a few control characters, like making comma just emit a comma instead of ending the column, and two double quotes after each other emitting a single double quote instead of toggling escaped mode on and off. Note that escaped mode can only be entered and exited at the start and end of columns, not in the middle.
+			</p>
+		</section>
+		<section id="multi-threading-deserialization">
+			<h3>Multi threading</h3>
+			<p>
+				To multi thread the parsing of the rows, we need to split the work up into smaller tasks that we can distribute through a worker pool. We do this through seeking forward an "ideal" chunk size and going character by character until we hit a newline.
+			</p>
+			<bb-tross-chunk-splitting-visualization text="line 1&#10;line 2&#10;line 3&#10;line 4&#10;line 5&#10;"></bb-tross-chunk-splitting-visualization>
+			<p>
+				This works perfectly in the case where the input doesn't contain any newlines inside columns, however in the case that it does this method might end up splitting a column in the middle of it. This is hard to avoid considering there can be a full CSV inside of one column of CSV without issue. We solve this later when parsing by allowing tasks to exceed their target boundaries if they are in escaped mode when reaching the end of their target boundary up until the row actually ends. This requires that we cancel the task after it and re-schedule it with a new start size.
+			</p>
+			<p>
+				Note the tradeoff of this is that we can't just send the slice of buffer that the task is supposed to be parsing, but also everything after. Benchmarking if this is more efficient will be another project for another day.
+			</p>
+			<p>
+				Here we also use the custom pull-based worker pool described when we made the <a href="#multi-threading-serializing">multi threading serializing</a> however it provides major speedups in reducing head of line blocking due to it allowing us to specify the order of tasks executed instead of queueing it like a FIFO queue and even changing the priority up to right before a task gets sent to a worker.
+
+				This is especially important when we have to resize a task as that would <em>normally</em> be submitted at the back of the queue even though the chunk is at the start of the text, making the entire output wait until that chunk is complete. However when we can prioritize we can put tasks that are closer to the start first, reducing head of line blocking as much as possible.
+			</p>
+			<bb-tross-yielding-visualization></bb-tross-yielding-visualization>
+		</section>
+	</section>
+	<section id="conclusion">
+		<h2>Conclusion</h2>
+		<p>
+			You have now reinvented a slightly less <a href="https://github.com/leo-aa88/HelloWorldEnterpriseEdition">enterprise-y</a> version of tross, the CSV parser I developed together with <a href="https://github.com/WilliamMartinMehren">WilliamMartinMehren</a> and <a href="https://github.com/mikonaw">mikonaw</a>.
+
+			Thanks for reading, and thanks <a href="https://alejoh.eu">alejoheu</a>, <a href="https://github.com/Simen732">Simen732</a>, <a href="https://github.com/WilliamMartinMehren">WilliamMartinMehren</a> and badtuple for your feedback while I was making this post.
+
+			However there's one CSV feature not mentioned yet: the separator header
+		</p>
+			<bb-syntax-highlighting language="csv" contents="sep=;&#10;Column 1 name;Column 2 name&#10;Value;Another value"></bb-syntax-highlighting>
+		<p>
+			This is non-standard and from what I can find, is only used by some Microsoft products.
+			I'm going to leave it up to you to figure out how you would implement it yourself. Good luck!
+		</p>
+	</section>
+{% endblock %}

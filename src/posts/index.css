@@ -4,3 +4,7 @@ main {
 time {
 	font-variant-numeric: tabular-nums;
 }
+#posts {
+	list-style-type: none;
+	padding: 0;
+}

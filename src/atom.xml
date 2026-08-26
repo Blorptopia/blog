@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title>Blorptopia's blog</title>
+	<link href="https://blorptopia.dev/posts/" rel="self" />
+	<link href="https://blorptopia.dev/" />
+	<id>urn:uuid:181b00b8-8328-46c1-99df-c00fe3881800</id>
+	<author>
+		<name>Blorptopia</name>
+	</author>
+	
+	{% for slug, post_metadata in per_post_metadata.items() -%}
+	<entry>
+		<id>urn:uuid:{{ post_metadata.id }}</id>
+		<title>{{ post_metadata.title }}</title>
+		<summary>{{ post_metadata.summary }}</summary>
+		<link rel="alternate" type="text/html" href="https://blorptopia.dev/posts/{{ slug }}/"/>
+		<published>{{ post_metadata.published_at }}</published>
+	</entry>
+	{% endfor %}
+</feed>
