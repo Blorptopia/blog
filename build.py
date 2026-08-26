@@ -21,6 +21,8 @@ def render_template(
 		output_path: Path | None = None
 	) -> None:
 	template = environment.get_template(template_name)
+	context = context or {}
+	context["open_relative"] = lambda path: (Path(template_name).parent / path).open()
 	content = template.render(**context or {})
 	if output_path is None:
 		output_path = (BUILD_ROOT_PATH / template_name)
@@ -31,6 +33,9 @@ def render_template(
 		f.write(content)
 	print(f"Rendering template {repr(template_name)}")
 
+class ProjectMetadata(typing.TypedDict):
+	display_name: str
+	tags: list[str]
 class PostMetadata(typing.TypedDict):
 	id: str
 	title: str
@@ -74,7 +79,6 @@ def main() -> None:
 			template_name,
 			{
 				"post_metadata": post_metadata,
-				"open_relative": lambda path: (template_path.parent / path).open()
 			}
 		)
 		entrypoints.append(template_name)
@@ -83,6 +87,30 @@ def main() -> None:
 	render_template(environment, "index.html")
 	entrypoints.append("index.html")
 
+	with (SOURCE_PATH / "projects" / "metadata.json").open() as f:
+		projects_metadata = json.load(f)
+
+	per_project_metadata: dict[str, ProjectMetadata] = {}
+	for template_path in SOURCE_PATH.glob("projects/*/index.html"):
+		project_slug = template_path.parent.name
+		project_metadata_file_path = template_path.parent / "metadata.json"
+		print(f"Parsing project metadata for {repr(project_slug)}")
+		with project_metadata_file_path.open("r") as f:
+			project_metadata = json.load(f)
+			per_project_metadata[project_slug] = project_metadata
+		template_name = str(template_path.relative_to(SOURCE_PATH))
+		render_template(
+			environment,
+			template_name,
+			{
+				"project_metadata": project_metadata,
+				"projects_metadata": projects_metadata,
+				"per_post_metadata": per_post_metadata
+			}
+		)
+		entrypoints.append(template_name)
+	render_template(environment, "projects/index.html", {"per_project_metadata": per_project_metadata, "projects_metadata": projects_metadata})
+	entrypoints.append("projects/index.html")
 
 	render_template(environment, "posts/index.html", {"per_post_metadata": per_post_metadata})
 	entrypoints.append("posts/index.html")

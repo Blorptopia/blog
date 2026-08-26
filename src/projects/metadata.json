@@ -1,0 +1,36 @@
+{
+	"tags": {
+		"lit": {
+			"display_name": "Lit"
+		},
+		"typescript": {
+			"display_name": "TypeScript"
+		},
+		"sql": {
+			"display_name": "SQL"
+		},
+		"python": {
+			"display_name": "Python"
+		},
+		"postgres": {
+			"display_name": "Postgres"
+		},
+		"rust": {
+			"display_name": "Rust"
+		},
+		"axum": {
+			"display_name": "Axum"
+		},
+		"fastapi": {
+			"display_name": "FastAPI"
+		},
+		"jinja2": {
+			"display_name": "Jinja2"
+		}
+	},
+	"employers": {
+		"drammen_kommune": {
+			"display_name": "Drammen kommune"
+		}
+	}
+}

@@ -1,0 +1,60 @@
+{% extends "page.html" %}
+{% block head %}
+	{{ super() }}
+	<title>Projects | Blorptopia</title>
+	<link rel="stylesheet" href="./index.css">
+	<script src="./index.ts" type="module" defer></script>
+{% endblock %}
+{% block page_content %}
+	<h1>Projects</h1>
+	<details>
+		<summary>What is included here</summary>
+		<p>
+			As of now this only includes a small selection of my newer projects. I intend to add more here, but this will take quite a bit of time.
+		</p>
+	</details>
+	<div id="projects">
+		{% for project_slug, project_metadata in per_project_metadata.items() | sort(attribute="1.created_at", reverse=True) %}
+			{% set project_creation_year = project_metadata.created_at.split("-")[0] %}
+			{% if loop.previtem is defined %}
+				{% set prev_project_creation_year = loop.previtem[1].created_at.split("-")[0] %}
+				{% if project_creation_year != prev_project_creation_year %}
+					<h2 class="year-heading">{{ project_creation_year }}</h2>
+				{% endif %}
+			{% else %}
+				<h2 class="year-heading">{{ project_creation_year }}</h2>
+			{% endif %}
+			<div class="project" href="/projects/{{ project_slug }}" data-year="{{ project_creation_year }}">
+				<div class="content">
+					<div class="heading">
+						<a class="project-title" href="/projects/{{ project_slug | escape }}"><h2>{{ project_metadata.display_name }}</h2></a>
+						{% set employer = project_metadata.developed_with.employer %}
+						{% if employer == None %}
+							{% if project_metadata.developed_with.developers == 1 %}
+								<span class="developer-status">Solo project</span>
+							{% else %}
+								<span class="developer-status">Personal w/{{ project_metadata.developed_with.developers - 1 }} others</span>
+							{% endif %}
+						{% else %}
+							<span class="developer-status">@ {{ projects_metadata.employers[employer].display_name }}</span>
+						{% endif %}
+					</div>
+					<span class="summary">{{ project_metadata.summary }}</span>
+				</div>
+				<div class="metadata">
+					<div class="links">
+						<a href="/projects/{{ project_slug | escape }}">Details</a>
+						{% if "github" in project_metadata.get("links", {}) %}
+							<a href="{{ project_metadata.links.github }}">GitHub</a>
+						{% endif %}
+					</div>
+					<div class="tags">
+						{% for tag in project_metadata.tags %}
+							<a class="tag" data-tag-name="{{ tag | escape }}" href="/projects/?tag={{ tag | escape }}">{{ projects_metadata["tags"][tag].display_name | escape }}</a>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+		{% endfor %}
+	</div>
+{% endblock %}
