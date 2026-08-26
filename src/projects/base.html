@@ -1,0 +1,41 @@
+{% extends "page.html" %}
+{% block head %}
+	{{ super() }}
+	<title>{{ project_metadata.display_name }} | Blorptopia</title>
+	<link rel="stylesheet" href="/projects/base.css">
+{% endblock %}
+
+{% block page_content %}
+	<h1>{{ project_metadata.display_name }}</h1>
+	<dl id="metadata">
+		<dt>Created at</dt>
+		<dd><time datetime="{{ project_metadata.created_at }}">{{ project_metadata.created_at }}</time></dd>
+		<dt>Developed</dt>
+		{% if project_metadata.developed_with.developers == 1 %}
+			<dd>By myself</dd>
+		{% elif project_metadata.developed_with.developers == 2 %}
+			<dd>1 other developer</dd>
+		{% else %}
+			<dd>{{ project_metadata.developed_with.developers - 1}} other developers</dd>
+		{% endif %}
+		{% if project_metadata.developed_with.employer == None %}
+			<dd>In my spare time</dd>
+		{% else %}
+			<dd>As a work project @ {{ projects_metadata.employers[project_metadata.developed_with.employer].display_name }}</dd>
+		{% endif %}
+		<dt>Stack</dt>
+		{% for tag in project_metadata.tags %}
+			<dd>{{ projects_metadata.tags[tag].display_name }}
+		{% endfor %}
+		<dt>Links</dt>
+		{% if project_metadata.links.github %}
+		<dd><a href="{{ project_metadata.links.github | escape }}">GitHub</a></dd>
+		{% endif %}
+		{% for blog_slug in project_metadata.links.get("blog_slugs", []) %}
+			{% set post = per_post_metadata[blog_slug] %}
+			<dd><a href="/posts/{{ blog_slug | escape }}">{{ post.title }}</a></dd>
+		{% endfor %}
+	</dl>
+	<h2>Summary</h2>
+	<p>{{ project_metadata.summary }}</p>
+{% endblock %}
