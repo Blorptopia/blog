@@ -1,0 +1,19 @@
+{
+	"display_name": "ATS",
+	"summary": "A system to track the status of jobs I've applied to",
+	"created_at": "2026-06-08",
+	"tags": [
+		"python",
+		"fastapi",
+		"jinja2",
+		"sql",
+		"postgres"
+	],
+	"developed_with": {
+		"employer": null,
+		"developers": 1
+	},
+	"links": {
+		"github": "https://github.com/blorptopia/ats"
+	}
+}

@@ -1,0 +1,23 @@
+{% extends "projects/base.html" %}
+{% block page_content %}
+	{{ super() }}
+	<h2>Functionality</h2>
+	<p>
+		ATS allows you to track
+	</p>
+	<ul>
+		<li>Which jobs you have applied to</li>
+		<li>When you applied to each job</li>
+		<li>How you found out about a job</li>
+		<li>What gave you the referral to that job</li>
+		<li>The interviews you attended</li>
+	</ul>
+	<p>
+		ATS also integrates with both <a href="https://finn.no">Finn</a> and <a href="https://arbeidsplassen.nav.no/">NAV's arbeidsplassen</a> to allow you to lookup an application by their post page.
+	</p>
+	<h2>History</h2>
+	<p>
+		Previously I was manually tracking this in a markdown document, however with time it became harder to track <i>when</i> things happened in the interview process.
+		I eventually moved over to manually tracking this in a postgres database with a few views, however this wasn't that practical and I had the tendence to forget the where clause when updating and not notice before committing the transaction.
+	</p>
+{% endblock %}
