@@ -1,0 +1,17 @@
+{
+	"display_name": "Tross",
+	"created_at": "2025-04-25",
+	"summary": "A CSV parsing and writing library",
+	"tags": [
+		"typescript"
+	],
+	"developed_with": {
+		"employer": "drammen_kommune",
+		"developers": 2
+	},
+	"links": {
+		"blog_slugs": [
+			"tross"
+		]
+	}
+}
