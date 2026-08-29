@@ -69,7 +69,14 @@ def main() -> None:
 			per_post_metadata[post_slug] = post_metadata
 
 		template_name = str(template_path.relative_to(SOURCE_PATH))
-		render_template(environment, template_name, {"post_metadata": post_metadata})
+		render_template(
+			environment,
+			template_name,
+			{
+				"post_metadata": post_metadata,
+				"open_relative": lambda path: (template_path.parent / path).open()
+			}
+		)
 		entrypoints.append(template_name)
 
 	
