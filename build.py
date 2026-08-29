@@ -99,7 +99,8 @@ def main() -> None:
 					"input": inputs
 				},
 				"outDir": "../dist",
-				"emptyOutDir": True
+				"emptyOutDir": True,
+				"sourcemap": True
 			}
 		}
 		f.write(f"export default {json.dumps(vite_config)}")
