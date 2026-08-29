@@ -9,3 +9,7 @@ article {
 	padding: 1rem;
 	box-sizing: border-box;
 }
+
+code {
+	background: light-dark(lightgrey, black);
+}
