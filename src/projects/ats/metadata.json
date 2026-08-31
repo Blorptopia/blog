@@ -1,6 +1,6 @@
 {
 	"display_name": "ATS",
-	"summary": "A system to track the status of jobs I've applied to",
+	"summary": "A system to track my job applications",
 	"created_at": "2026-06-08",
 	"tags": [
 		"python",
