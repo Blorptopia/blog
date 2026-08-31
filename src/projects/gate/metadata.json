@@ -14,5 +14,7 @@
 		"employer": "drammen_kommune",
 		"developers": 2
 	},
-	"links": {}
+	"links": {
+		"demo": "https://gate-demo-app.enhetyrkesfag.no"
+	}
 }

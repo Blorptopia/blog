@@ -44,6 +44,9 @@
 				<div class="metadata">
 					<div class="links">
 						<a href="/projects/{{ project_slug | escape }}">Details</a>
+						{% if "demo" in project_metadata.get("links", {}) %}
+							<a href="{{ project_metadata.links.demo }}">Demo</a>
+						{% endif %}
 						{% if "github" in project_metadata.get("links", {}) %}
 							<a href="{{ project_metadata.links.github }}">GitHub</a>
 						{% endif %}
