@@ -39,6 +39,13 @@ h1 {
 .metadata {
 	display: flex;
 	gap: 1rem;
+	flex-wrap: wrap;
+	align-items: center;
+}
+.tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: .5rem;
 }
 .tag {
 	background: light-dark(#ababab, #343434);
@@ -46,6 +53,11 @@ h1 {
 	border-radius: .5rem;
 	text-decoration: none;
 	color: light-dark(black, white);
+}
+.links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: .5rem;
 }
 .tag:hover {
 	text-decoration: underline;
