@@ -1,0 +1,17 @@
+{
+	"display_name": "FightClub",
+	"summary": "A website to allow kids to turn their pre-programmed LEGO SPIKE robots into robots they can program to respond to gamepad buttons in realtime",
+	"created_at": "2024-08-25",
+	"tags": [
+		"lit",
+		"typescript",
+		"python"
+	],
+	"developed_with": {
+		"employer": "drammen_kommune",
+		"developers": 2
+	},
+	"links": {
+		"demo": "https://fightclub.enhetyrkesfag.no"
+	}
+}
