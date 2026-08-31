@@ -17,7 +17,7 @@ h1 {
 }
 
 .project:not([hidden]) {
-	background: #232323;
+	background: light-dark(#cecece, #232323);
 	padding: 1rem;
 	border-radius: 0.5rem;
 
@@ -31,7 +31,7 @@ h1 {
 }
 .project-title {
 	text-decoration: none;
-	color: #fff;
+	color: light-dark(#000, #fff);
 }
 .project-title:hover {
 	text-decoration: underline;
@@ -41,7 +41,7 @@ h1 {
 	gap: 1rem;
 }
 .tag {
-	background: #343434;
+	background: light-dark(#ababab, #343434);
 	padding: .5rem;
 	border-radius: .5rem;
 	text-decoration: none;
