@@ -5,6 +5,7 @@ import Prism from "prismjs";
 import "prismjs/components/prism-typescript.js";
 import "prismjs/components/prism-csv.js";
 import "prismjs/components/prism-json.js";
+import "prismjs/components/prism-bash.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import Theme from "prismjs/themes/prism-tomorrow.css?raw";
 

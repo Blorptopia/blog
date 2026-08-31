@@ -26,6 +26,21 @@
 		},
 		"jinja2": {
 			"display_name": "Jinja2"
+		},
+		"bazel": {
+			"display_name": "Bazel"
+		},
+		"docker": {
+			"display_name": "Docker"
+		},
+		"kubernetes": {
+			"display_name": "Kubernetes"
+		},
+		"github_actions": {
+			"display_name": "GitHub Actions"
+		},
+		"python": {
+			"display_name": "Python"
 		}
 	},
 	"employers": {

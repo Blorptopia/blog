@@ -1,0 +1,19 @@
+{
+	"display_name": "Unit",
+	"created_at": "2025-04-02",
+	"summary": "A monorepo setup to build, test, package and release over 100 packages",
+	"tags": [
+		"bazel",
+		"docker",
+		"github_actions",
+		"python",
+		"rust",
+		"typescript",
+		"kubernetes"
+	],
+	"developed_with": {
+		"employer": "drammen_kommune",
+		"developers": 3
+	},
+	"links": {}
+}

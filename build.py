@@ -22,7 +22,7 @@ def render_template(
 	) -> None:
 	template = environment.get_template(template_name)
 	context = context or {}
-	context["open_relative"] = lambda path: (Path(template_name).parent / path).open()
+	context["open_relative"] = lambda path: ((SOURCE_PATH / template_name).parent / path).open()
 	content = template.render(**context or {})
 	if output_path is None:
 		output_path = (BUILD_ROOT_PATH / template_name)

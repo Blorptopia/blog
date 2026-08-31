@@ -1,0 +1,19 @@
+{% extends "projects/base.html" %}
+{% block head %}
+	{{ super() }}
+	<script src="/syntax-highlighting.ts" type="module"></script>
+{% endblock %}
+{% block page_content %}
+	{{ super() }}
+	<h2>The build process</h2>
+	<p>
+		We release OCI images for all of our apps, as well as helm charts<a href="#footnote-1">¹</a>. This is done automatically by an GitHub Action which first tests all our images, and if they pass we push their OCI image to GitHub's container registry.
+		We also support doing CI locally via
+		{% set local_development_example = open_relative("examples/local-development.sh").read() %}
+		<bb-syntax-highlighting language="bash" contents="{{ local_development_example | escape}}">
+	</p>
+	<p>A small scale example similar to how unit is set up can be found under my <a href="https://github.com/Blorptopia/bazeling">Bazeling repo</a>.
+
+	<h2>Footnotes</h2>
+	<p id="footnote-1">Currently some of our apps are deployed using plain old kubernetes manifests in Flux. Changing to Helm charts is a work in progress!</p>
+{% endblock %}
