@@ -8,8 +8,9 @@
 
 
 	--nav-color: #7A0000;
-	--background-color: #1c1b22;
-	--box-color: #232323;
+	--background-color: light-dark(#fff, #1c1b22);
+	--box-color: light-dark(#eee, #232323);
+	--link-color: light-dark(#2525ee, #09aebc);
 	--content-margin: 3.5rem;
 }
 :root[data-theme="light"] {

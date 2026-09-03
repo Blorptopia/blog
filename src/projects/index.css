@@ -35,7 +35,7 @@ h1 {
 
 	display: flex;
 	flex-direction: column;
-	gap: .5rem;
+	gap: 1rem;
 }
 .heading {
 	display: flex;
@@ -43,7 +43,9 @@ h1 {
 }
 .project-title {
 	text-decoration: none;
-	color: #09aebc;
+}
+a {
+	color: var(--link-color);
 }
 .project:hover .project-title {
 	text-decoration: underline;
@@ -52,6 +54,7 @@ h1 {
 	display: flex;
 	flex-direction: column;
 	flex-wrap: wrap;
+	gap: .5rem;
 }
 .tags {
 	display: flex;
