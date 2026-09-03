@@ -8,6 +8,7 @@ from pathlib import Path
 import shutil
 import json
 import subprocess
+import time
 
 SOURCE_PATH = Path("src").absolute()
 BUILD_OUTPUT_PATH = Path("build").absolute()
@@ -116,7 +117,7 @@ def main() -> None:
 	entrypoints.append("posts/index.html")
 
 	render_template(environment, "atom.xml", {"per_post_metadata": per_post_metadata}, output_path=Path("public/atom.xml"))
-	
+
 	# Build with rollup
 	with (BUILD_ROOT_PATH / "vite.config.js").open("w+") as f:
 		inputs = {entrypoint:entrypoint for entrypoint in entrypoints}

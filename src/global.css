@@ -5,6 +5,12 @@
 	font-family: "Atkinson Hyperlegible Next";
 
 	color-scheme: light dark;
+
+
+	--nav-color: #7A0000;
+	--background-color: #1c1b22;
+	--box-color: #232323;
+	--content-margin: 3.5rem;
 }
 :root[data-theme="light"] {
 	color-scheme: light;
@@ -14,10 +20,11 @@
 }
 body {
 	margin: 0;
+	background: var(--background-color);
 }
 
 nav {
-	background: #232323;
+	background: linear-gradient(to bottom, var(--nav-color), #3D0000);
 	padding: 2rem;
 
 	display: flex;
